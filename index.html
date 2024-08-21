@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <div id="app" class="font-['Inter']">
+        <div class="py-4 max-w-screen-sm mx-auto">
+            <div class="flex justify-between items-center">
+                <h1 class="font-bold text-2xl">TODO List</h1>
+                <button class="px-3 py-2 bg-blue-500 text-white rounded-md" @click="handleNew">New TODO</button>
+            </div>
+
+            <p v-if="todos.length <= 0" class="text-2xl text-center pt-10">
+                Empty TODO LIST
+            </p>
+            <template v-else>
+
+                <div v-for="(i, index) in todos">
+                    <div class="text-medium text-lg flex justify-between border rounded-md p-4 mt-2">
+                        {{ i }}
+                        <div class="flex gap-2">
+                            <button class="px-3 py-2 bg-blue-500 text-white rounded-md"
+                                @click="handleEdit(index)">Edit</button>
+                            <button class="px-3 py-2 bg-red-500 text-white rounded-md"
+                                @click="handleDelete(index)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        createApp({
+            setup() {
+                const todos = ref([])
+
+                const handleNew = async () => {
+                    const { value } = await Swal.fire({
+                        title: "Enter your TODO",
+                        input: "text",
+                        inputLabel: "Write something.",
+                        inputValue: "",
+                        showCancelButton: true,
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return "You need to write something!";
+                            }
+                        }
+                    });
+
+                    if (value) {
+                        todos.value.push(value);
+                    }
+                }
+
+                const handleEdit = async (index) => {
+                    const { value } = await Swal.fire({
+                        title: "Enter your TODO",
+                        input: "text",
+                        inputLabel: "Write something.",
+                        inputValue: todos.value[index],
+                        showCancelButton: true,
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return "You need to write something!";
+                            }
+                        }
+                    });
+
+                    if (value) {
+                        todos.value[index] = value;
+                    }
+                }
+
+                const handleDelete = async (index) => {
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            todos.value = todos.value.filter(function (item, i) {
+                                return i !== index;
+                            });
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your file has been deleted.",
+                                icon: "success"
+                            });
+                        }
+                    });
+                }
+
+                return {
+                    todos,
+                    handleNew,
+                    handleEdit,
+                    handleDelete
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
